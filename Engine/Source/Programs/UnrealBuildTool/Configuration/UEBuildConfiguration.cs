@@ -332,8 +332,11 @@ namespace UnrealBuildTool
         /// </summary>
         [XmlConfig]
         public static bool bForceCompilePerformanceAutomationTests;
+        
+        [XmlConfig]
+        public static bool bEventDrivenLoader;
 
-		/// <summary>
+        /// <summary>
 		/// Sets the configuration back to defaults.
 		/// </summary>
 		public static void LoadDefaults()
@@ -380,6 +383,7 @@ namespace UnrealBuildTool
 			bEditorDependsOnShaderCompileWorker = true;
             bForceCompileDevelopmentAutomationTests = false;
             bForceCompilePerformanceAutomationTests = false;
+            bEventDrivenLoader = true;
 		}
 
 		/// <summary>

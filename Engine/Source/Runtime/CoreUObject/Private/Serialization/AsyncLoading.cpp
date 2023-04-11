@@ -274,7 +274,7 @@ static FAutoConsoleVariableRef CVarPreloadPackageDependencies(
 	ECVF_Default
 	);
 
-static int32 GEventDrivenLoaderEnabled = 0;
+static int32 GEventDrivenLoaderEnabled = 1;
 static FAutoConsoleVariableRef CVarEventDrivenLoaderEnabled(
 	TEXT("s.EventDrivenLoaderEnabled"),
 	GEventDrivenLoaderEnabled,

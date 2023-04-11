@@ -126,6 +126,11 @@ public:
 		Ar << Value.Index;
 		return Ar;
 	}
+
+	FORCEINLINE friend uint32 GetTypeHash(const FPackageIndex& In)
+	{
+		return uint32(In.Index);
+	}
 };
 
 
