@@ -1,0 +1,75 @@
+// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#define VERSION_TEXT_2(x) L ## x
+#define VERSION_TEXT(x) VERSION_TEXT_2(x)
+#define VERSION_STRINGIFY_2(x) VERSION_TEXT(#x)
+#define VERSION_STRINGIFY(x) VERSION_STRINGIFY_2(x)
+
+#include "VersionLocked.h"
+
+#if !LOCKED_BUILD_VERSION
+
+#define ENGINE_MAJOR_VERSION	4
+#define ENGINE_MINOR_VERSION	13
+#define ENGINE_PATCH_VERSION	2
+
+#define ENGINE_IS_LICENSEE_VERSION 0
+
+#define BUILT_FROM_CHANGELIST 0
+#define BRANCH_NAME "UE4"
+
+#define ENGINE_IS_PROMOTED_BUILD (BUILT_FROM_CHANGELIST > 0)
+
+#define EPIC_COMPANY_NAME  "Epic Games, Inc."
+#define EPIC_COPYRIGHT_STRING "Copyright 1998-2016 Epic Games, Inc. All Rights Reserved."
+#define EPIC_PRODUCT_NAME "Unreal Engine"
+#define EPIC_PRODUCT_IDENTIFIER "UnrealEngine"
+
+#define BUILD_VERSION VERSION_TEXT(BRANCH_NAME) VERSION_TEXT("-CL-") VERSION_STRINGIFY(BUILT_FROM_CHANGELIST) 
+
+#endif // BUILD_VERSION_LOCKED
+
+#if LOCKED_NETWORK_VERSION
+	#define ENGINE_NET_VERSION LOCKED_NETWORK_VERSION
+#else
+	// if not defined default network to build cl
+	#define ENGINE_NET_VERSION BUILT_FROM_CHANGELIST
+#endif
+
+#if LOCKED_REPLAY_VERSION
+	#define ENGINE_REPLAY_VERSION LOCKED_REPLAY_VERSION
+#else
+	// If not defined default replays to network version
+	#define ENGINE_REPLAY_VERSION ENGINE_NET_VERSION
+#endif
+
+// Checks
+
+#ifndef BUILT_FROM_CHANGELIST
+	#error BUILT_FROM_CHANGELIST must be defined!
+#endif
+
+#ifndef ENGINE_NET_VERSION
+	#error ENGINE_NET_VERSION must be defined!
+#endif
+
+#ifndef ENGINE_REPLAY_VERSION
+	#error ENGINE_REPLAY_VERSION must be defined!
+#endif
+
+#ifndef BUILD_VERSION
+	#error BUILD_VERSION must be defined!
+#endif
+
+#define ENGINE_VERSION_STRING \
+	VERSION_STRINGIFY(ENGINE_MAJOR_VERSION) \
+	VERSION_TEXT(".") \
+	VERSION_STRINGIFY(ENGINE_MINOR_VERSION) \
+	VERSION_TEXT(".") \
+	VERSION_STRINGIFY(ENGINE_PATCH_VERSION) \
+	VERSION_TEXT("-") \
+	VERSION_STRINGIFY(BUILT_FROM_CHANGELIST) \
+	VERSION_TEXT("+") \
+	VERSION_TEXT(BRANCH_NAME)

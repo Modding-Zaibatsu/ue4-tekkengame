@@ -1,0 +1,44 @@
+﻿INTSourceChangelist:2659220
+Availability:Public
+Title:Widget コンポーネント
+Crumbs:%ROOT%, Engine, Engine/Components
+Description:ワールド内でインタラクション可能な Widget ブループリントの 3D インスタンスである Widget コンポーネントの説明。 
+Related:Engine/UMG
+Related:Engine/UMG/UserGuide/WidgetBlueprints
+Related:Engine/MediaFramework
+Related:Engine/Blueprints/UserGuide/Components
+SkillLevel:初心者向け
+Version:4.9
+
+Widget コンポーネントを使用すると、[**UMG**](Engine/UMG/UserGuide) で作成した 3D UI エレメントをゲームワールドで表すことができます。 
+
+## Widget コンポーネント
+
+**Widget コンポーネント** 自体は、ゲーム ワールド内でインタラクションできる Widget ブループリント の 3D インスタンスです。 
+
+以下の例では、Widget コンポーネントを追加しました。これで、Widget クラスのブループリントを指定できるようになります。 
+
+![](Engine/UMG/HowTo/Create3DWidgets/UMG_3D_21.png)
+
+_この例では、Widget ブループリント を使用してゲームワールド内に表示されるインタラクティブ メニューを表示します。_
+
+Widget ブループリントがワールドでどのように見えるかの設定を、 Draw Size または Max Interaction を変更することで変えることができます。 
+
+![](Engine/UMG/HowTo/Create3DWidgets/UMG_3D_22.png)(w:720)
+
+Widget コンポーネントを含むアクタをレベルに配置すると、Widget クラスのブループリントがワールドに表示されます。 
+
+![](Engine/UMG/HowTo/Create3DWidgets/UMG_3D_30.png)(w:720)
+
+Widget コンポーネントおよび Widget ブループリント を使用してこの例を作成する手順を追ったガイドについては、 **[](Engine/UMG/HowTo/Create3DWidgets)** をご覧ください。 
+
+[REGION:note]
+このコンポーネントは実験段階であり、将来のリリースでは大幅に変更または削除される可能性があります。 
+[/REGION]
+
+
+
+
+
+
+

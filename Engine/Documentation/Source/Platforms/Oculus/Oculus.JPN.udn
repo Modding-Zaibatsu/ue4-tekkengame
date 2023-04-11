@@ -1,0 +1,44 @@
+﻿INTSourceChangelist:2940199
+Title:Oculus Rift の開発
+Crumbs:%ROOT%, Platforms
+Description:
+Availability:Public
+Navigation:platform
+Platform:Oculus
+Version:4.9
+type:landing
+parent:Platforms/VR
+tags:VR
+tags:Oculus Rift
+
+[EXCERPT:warning]
+[REGION:warning]
+Mac で Oculus 用の開発を行うには、現在アンリアル エンジン 4.3 以上が必要になります。
+[/REGION]
+[/EXCERPT:warning]
+
+## はじめよう
+
+[DIR(output:"listbutton" type:"quickstart" parent:"Platforms/Oculus")]
+
+## Oculus Rift のトピックス
+
+[REGION:buttonlist]
+[DIR(output:"listbutton" type:"overview" parent:"Platforms/Oculus")]
+* [Oculus Rift のアンリアル エンジン 4 へ統合する](https://de45xmedrsdbp.cloudfront.net/Resources/files/UE4-Integration-and-Demos_OC-100270768.pptx "Oculus Connect 2014 Presentation")
+[/REGION]
+
+## Oculus Talks
+ **Oculus Connect:Oculus Rift をアンリアル エンジン 4 に統合します**
+[OBJECT:EmbeddedVideo]
+[PARAMLITERAL:width]
+640
+[/PARAMLITERAL]
+[PARAMLITERAL:height]
+360
+[/PARAMLITERAL]
+[PARAMLITERAL:videoid]
+0oM6Xe7fT-8
+[/PARAMLITERAL]
+[/OBJECT]
+
