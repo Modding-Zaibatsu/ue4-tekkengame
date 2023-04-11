@@ -77,15 +77,6 @@ void FWindowsWindow::Initialize( FWindowsApplication* const Application, const T
 		{
 			WindowExStyle |= WS_EX_LAYERED;
 		}
-#if ALPHA_BLENDED_WINDOWS
-		else if( Definition->TransparencySupport == EWindowTransparency::PerPixel )
-		{
-			if( bApplicationSupportsPerPixelBlending )
-			{
-				WindowExStyle |= WS_EX_COMPOSITED;
-			}
-		}
-#endif
 
 		WindowStyle = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 		if ( Definition->AppearsInTaskbar )
