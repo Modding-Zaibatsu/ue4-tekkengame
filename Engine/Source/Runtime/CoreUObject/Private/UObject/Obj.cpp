@@ -946,6 +946,20 @@ bool UObject::IsSelected() const
 	return !IsPendingKill() && GSelectedAnnotation.Get(this);
 }
 
+void UObject::GetPreloadDependencies(TArray<UObject*>& OutDeps)
+{
+	UClass *ObjClass = GetClass();
+	if (!ObjClass->HasAnyClassFlags(CLASS_Intrinsic | CLASS_Native))
+	{
+		OutDeps.Add(ObjClass);
+
+		if (!HasAnyFlags(RF_ClassDefaultObject) && ObjClass->GetDefaultsCount() > 0)
+		{
+			OutDeps.Add(ObjClass->GetDefaultObject());
+		}
+	}
+}
+
 void UObject::Serialize( FArchive& Ar )
 {
 	// These three items are very special items from a serialization standpoint. They aren't actually serialized.

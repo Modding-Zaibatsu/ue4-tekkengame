@@ -281,6 +281,15 @@ FArchive& operator<<( FArchive& Ar, FPackageFileSummary& Sum )
 				}
 			}
 		}
+		if (Ar.IsSaving() || Sum.FileVersionUE4 >= VER_UE4_PRELOAD_DEPENDENCIES_IN_COOKED_EXPORTS)
+		{
+			Ar << Sum.PreloadDependencyCount << Sum.PreloadDependencyOffset;
+		}
+		else
+		{
+			Sum.PreloadDependencyCount = -1;
+			Sum.PreloadDependencyOffset = 0;
+		}
 	}
 
 	return Ar;

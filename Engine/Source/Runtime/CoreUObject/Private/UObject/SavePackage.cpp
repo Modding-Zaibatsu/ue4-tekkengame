@@ -4541,6 +4541,249 @@ ESavePackageResult UPackage::Save(UPackage* InOuter, UObject* Base, EObjectFlags
 
 				// Save level information used by World browser
 				UPackage::SaveWorldLevelInfo( InOuter, Linker );
+
+				for (int32 i = 0; i < Linker->ExportMap.Num(); i++)
+				{
+					FObjectExport& Export = Linker->ExportMap[i];
+					if (Export.Object)
+					{
+						// Set class index.
+						// If this is *exactly* a UClass, store null instead; for anything else, including UClass-derived classes, map it
+						UClass* ObjClass = Export.Object->GetClass();
+						if (ObjClass != UClass::StaticClass())
+						{
+							Export.ClassIndex = Linker->MapObject(ObjClass);
+							check(!Export.ClassIndex.IsNull());
+						}
+						else
+						{
+							Export.ClassIndex = FPackageIndex();
+						}
+
+						if (IsEventDrivenLoaderEnabledInCookedBuilds() && TargetPlatform)
+						{
+							UObject* Archetype = Export.Object->GetArchetype();
+							check(Archetype);
+							check(Archetype->IsA(Export.Object->HasAnyFlags(RF_ClassDefaultObject) ? ObjClass->GetSuperClass() : ObjClass));
+							Export.TemplateIndex = Linker->MapObject(Archetype);
+							UE_CLOG(Export.TemplateIndex.IsNull(), LogSavePackage, Fatal, TEXT("%s was an archetype of %s but returned a null index mapping the object."), *Archetype->GetFullName(), *Export.Object->GetFullName());
+							check(!Export.TemplateIndex.IsNull());
+						}
+
+						// Set the parent index, if this export represents a UStruct-derived object
+						if (UStruct* Struct = dynamic_cast<UStruct*>(Export.Object))
+						{
+							if (Struct->GetSuperStruct() != NULL)
+							{
+								Export.SuperIndex = Linker->MapObject(Struct->GetSuperStruct());
+								check(!Export.SuperIndex.IsNull());
+							}
+							else
+							{
+								Export.SuperIndex = FPackageIndex();
+							}
+						}
+						else
+						{
+							Export.SuperIndex = FPackageIndex();
+						}
+
+						// Set FPackageIndex for this export's Outer. If the export's Outer
+						// is the UPackage corresponding to this package's LinkerRoot, the
+						if (Export.Object->GetOuter() != InOuter)
+						{
+							check(Export.Object->GetOuter());
+							checkf(Export.Object->GetOuter()->IsIn(InOuter),
+								TEXT("Export Object (%s) Outer (%s) mismatch."),
+								*(Export.Object->GetPathName()),
+								*(Export.Object->GetOuter()->GetPathName()));
+							Export.OuterIndex = Linker->MapObject(Export.Object->GetOuter());
+							checkf(!Export.OuterIndex.IsImport(),
+								TEXT("Export Object (%s) Outer (%s) is an Import."),
+								*(Export.Object->GetPathName()),
+								*(Export.Object->GetOuter()->GetPathName()));
+						}
+						else
+						{
+							// this export's Outer is the LinkerRoot for this package
+							Export.OuterIndex = FPackageIndex();
+						}
+					}
+				}
+
+				Linker->Summary.PreloadDependencyOffset = Linker->Tell();
+				Linker->Summary.PreloadDependencyCount = -1;
+
+				if (Linker->IsCooking() && IsEventDrivenLoaderEnabledInCookedBuilds())
+				{
+					const EObjectMark ObjectMarks = UPackage::GetObjectMarksForTargetPlatform(Linker->CookingTarget(), Linker->IsCooking());
+					Linker->Summary.PreloadDependencyCount = 0;
+
+					auto IncludeObjectAsDependency = [Linker,ObjectMarks](TSet<FPackageIndex>& AddTo, UObject* ToTest, UObject* ForObj, bool bMandatory)
+					{
+						// Skip transient, editor only, and excluded client/server objects
+						if (ToTest && !ToTest->HasAllFlags(RF_Transient))
+						{
+							UPackage* Outermost = ToTest->GetOutermost();
+							check(Outermost);
+							if (Outermost->HasAnyPackageFlags(EPackageFlags::PKG_CompiledIn))
+							{
+								return; // we never add dependencies for things that are compiled in
+							}
+							bool bNotFiltered = !ToTest->HasAnyMarks(ObjectMarks) && (!(Linker->Summary.PackageFlags & PKG_FilterEditorOnly) || !ToTest->HasAnyMarks(OBJECTMARK_EditorOnly));
+							if (bMandatory && !bNotFiltered)
+							{
+								UE_LOG(LogSavePackage, Log, TEXT("A dependency '%s' of '%s' was filtered, but is mandatory. This indicates a problem with editor only stripping. We will keep the dependency anyway."), *ToTest->GetFullName(), *ForObj->GetFullName());
+								bNotFiltered = true;
+							}
+							if (bNotFiltered)
+							{
+								FPackageIndex Index = Linker->MapObject(ToTest);
+								if (!Index.IsNull())
+								{
+									AddTo.Add(Index);
+									return;
+								}
+								else
+								{
+									UE_LOG(LogSavePackage, Fatal, TEXT("A dependency '%s' of '%s' was not actually in the linker tables and so will be ignored."), *ToTest->GetFullName(), *ForObj->GetFullName());
+								}
+							}
+							check(!bMandatory);
+						}
+					};
+
+					auto IncludeIndexAsDependency = [Linker](TSet<FPackageIndex>& AddTo, FPackageIndex Dep)
+					{
+						if (!Dep.IsNull())
+						{
+							UObject* ToTest = Dep.IsExport() ? Linker->Exp(Dep).Object : Linker->Imp(Dep).XObject;
+							if (ToTest)
+							{
+								UPackage* Outermost = ToTest->GetOutermost();
+								if (Outermost && !Outermost->HasAnyPackageFlags(EPackageFlags::PKG_CompiledIn))
+								{
+									AddTo.Add(Dep);
+								}
+							}
+						}
+					};
+
+
+					TArray<UObject*> Subobjects;
+					for (int32 i = 0; i < Linker->ExportMap.Num(); i++)
+					{
+						FObjectExport& Export = Linker->ExportMap[i];
+						if (Export.Object)
+						{
+							TSet<FPackageIndex> SerializationBeforeCreateDependencies;
+							{
+								IncludeIndexAsDependency(SerializationBeforeCreateDependencies, Export.ClassIndex);
+								IncludeIndexAsDependency(SerializationBeforeCreateDependencies, Export.SuperIndex);
+								UObject* CDO = Export.Object->GetArchetype();
+								IncludeObjectAsDependency(SerializationBeforeCreateDependencies, CDO, Export.Object, true);
+#if 1 //@todoio delete?
+								Subobjects.Reset();
+								GetObjectsWithOuter(CDO, Subobjects);
+								for (UObject* SubObj : Subobjects)
+								{
+									IncludeObjectAsDependency(SerializationBeforeCreateDependencies, SubObj, Export.Object, false);
+								}
+#endif
+							}
+							TSet<FPackageIndex> SerializationBeforeSerializationDependencies;
+							{
+								TArray<UObject*> Deps;
+								Export.Object->GetPreloadDependencies(Deps);
+								for (UObject* Obj : Deps)
+								{
+									IncludeObjectAsDependency(SerializationBeforeSerializationDependencies, Obj, Export.Object, false);
+								}
+							}
+
+							TSet<FPackageIndex> CreateBeforeSerializationDependencies;
+							{
+								TArray<FPackageIndex>& Depends = Linker->DependsMap[i];
+								for (FPackageIndex Dep : Depends)
+								{
+									UClass* Class = Cast<UClass>(Export.Object);
+									UObject* ToTest = Dep.IsExport() ? Linker->Exp(Dep).Object : Linker->Imp(Dep).XObject;
+									if (Class && ToTest == Class->GetDefaultObject())
+									{
+										continue;
+									}
+									IncludeIndexAsDependency(CreateBeforeSerializationDependencies, Dep);
+								}
+							}
+							TSet<FPackageIndex> CreateBeforeCreateDependencies;
+							{
+								IncludeIndexAsDependency(CreateBeforeCreateDependencies, Export.OuterIndex);
+							}
+
+							for (FPackageIndex Index : SerializationBeforeSerializationDependencies)
+							{
+								if (SerializationBeforeCreateDependencies.Contains(Index))
+								{
+									continue; // if the other thing must be serialized before we create, then this is a redundant dep
+								}
+								if (Export.FirstExportDependency == -1)
+								{
+									Export.FirstExportDependency = Linker->Summary.PreloadDependencyCount;
+									check(Export.SerializationBeforeSerializationDependencies == 0 && Export.CreateBeforeSerializationDependencies == 0 && Export.SerializationBeforeCreateDependencies == 0 && Export.CreateBeforeCreateDependencies == 0);
+								}
+								Linker->Summary.PreloadDependencyCount++;
+								Export.SerializationBeforeSerializationDependencies++;
+								*Linker << Index;
+								Linker->DepListForErrorChecking.Add(Index);
+							}
+							for (FPackageIndex Index : CreateBeforeSerializationDependencies)
+							{
+								if (SerializationBeforeCreateDependencies.Contains(Index))
+								{
+									continue; // if the other thing must be serialized before we create, then this is a redundant dep
+								}
+								if (SerializationBeforeSerializationDependencies.Contains(Index))
+								{
+									continue; // if the other thing must be serialized before we serialize, then this is a redundant dep
+								}
+								if (Export.FirstExportDependency == -1)
+								{
+									Export.FirstExportDependency = Linker->Summary.PreloadDependencyCount;
+									check(Export.SerializationBeforeSerializationDependencies == 0 && Export.CreateBeforeSerializationDependencies == 0 && Export.SerializationBeforeCreateDependencies == 0 && Export.CreateBeforeCreateDependencies == 0);
+								}
+								Linker->Summary.PreloadDependencyCount++;
+								Export.CreateBeforeSerializationDependencies++;
+								*Linker << Index;
+								Linker->DepListForErrorChecking.Add(Index);
+							}
+							for (FPackageIndex Index : SerializationBeforeCreateDependencies)
+							{
+								if (Export.FirstExportDependency == -1)
+								{
+									Export.FirstExportDependency = Linker->Summary.PreloadDependencyCount;
+									check(Export.SerializationBeforeSerializationDependencies == 0 && Export.CreateBeforeSerializationDependencies == 0 && Export.SerializationBeforeCreateDependencies == 0 && Export.CreateBeforeCreateDependencies == 0);
+								}
+								Linker->Summary.PreloadDependencyCount++;
+								Export.SerializationBeforeCreateDependencies++;
+								*Linker << Index;
+								Linker->DepListForErrorChecking.Add(Index);
+							}
+							for (FPackageIndex Index : CreateBeforeCreateDependencies)
+							{
+								if (Export.FirstExportDependency == -1)
+								{
+									Export.FirstExportDependency = Linker->Summary.PreloadDependencyCount;
+									check(Export.SerializationBeforeSerializationDependencies == 0 && Export.CreateBeforeSerializationDependencies == 0 && Export.SerializationBeforeCreateDependencies == 0 && Export.CreateBeforeCreateDependencies == 0);
+								}
+								Linker->Summary.PreloadDependencyCount++;
+								Export.CreateBeforeCreateDependencies++;
+								*Linker << Index;
+								Linker->DepListForErrorChecking.Add(Index);
+							}
+						}
+					}
+					UE_LOG(LogSavePackage, Log, TEXT("Saved %d dependencies for %d exports."), Linker->Summary.PreloadDependencyCount, Linker->ExportMap.Num());
+				}
 				
 				Linker->Summary.TotalHeaderSize	= Linker->Tell();
 

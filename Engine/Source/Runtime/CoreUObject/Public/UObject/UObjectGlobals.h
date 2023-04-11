@@ -372,6 +372,11 @@ COREUOBJECT_API int32 LoadPackageAsync(const FString& InName, FLoadPackageAsyncD
 COREUOBJECT_API void CancelAsyncLoading();
 
 /**
+* Returns true if the event driven loader is enabled in cooked builds
+*/
+COREUOBJECT_API bool IsEventDrivenLoaderEnabledInCookedBuilds();
+
+/**
  * Returns the async load percentage for a package in flight with the passed in name or -1 if there isn't one.
  * THIS IS SLOW. MAY BLOCK ASYNC LOADING.
  *

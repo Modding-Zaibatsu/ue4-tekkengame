@@ -370,6 +370,13 @@ public:
 		return false;
 	}
 
+	/**
+	* Called during cooking. Must return all objects that will be Preload()ed when this is serialized at load time
+	*
+	* @param	OutDeps				all objects that will be preloaded when this is serialized at load time
+	*/
+	virtual void GetPreloadDependencies(TArray<UObject*>& OutDeps);
+
 
 	/** 
 	 *	Determines if you can create an object from the supplied template in the current context (editor, client only, dedicated server, game/listen) 

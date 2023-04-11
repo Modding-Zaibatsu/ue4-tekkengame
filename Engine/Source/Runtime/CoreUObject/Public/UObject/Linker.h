@@ -192,6 +192,14 @@ struct FObjectExport : public FObjectResource
 	 * Serialized
 	 */
 	FPackageIndex 	SuperIndex;
+	
+	/**
+	* Location of the resource for this export's template/archetypes.  Only used
+	* in the new cooked loader. A value of zero indicates that the value of GetArchetype
+	* was zero at cook time, which is more or less impossible and checked.
+	* Serialized
+	*/
+	FPackageIndex 	TemplateIndex;
 
 	/**
 	 * The object flags for the UObject represented by this resource.  Only flags that
@@ -296,6 +304,16 @@ struct FObjectExport : public FObjectResource
 	 * Serialized
 	 */
 	uint32			PackageFlags;
+
+	/**
+	* The export table must serialize as a fixed size, this is use to index into a long list, which is later loaded into the array. -1 means dependencies are not present
+	* These are contiguous blocks, so CreateBeforeSerializationDependencies starts at FirstExportDependency + SerializationBeforeSerializationDependencies
+	*/
+	int32 FirstExportDependency;
+	int32 SerializationBeforeSerializationDependencies;
+	int32 CreateBeforeSerializationDependencies;
+	int32 SerializationBeforeCreateDependencies;
+	int32 CreateBeforeCreateDependencies;
 
 	/**
 	 * Constructors
@@ -725,6 +743,13 @@ public:
 	 * Streaming install ChunkIDs
 	 */
 	TArray<int32>	ChunkIDs;
+
+	int32		PreloadDependencyCount;
+
+	/**
+	* Location into the file on disk for the preload dependency data
+	*/
+	int32		PreloadDependencyOffset;
 
 
 	/** Constructor */
@@ -2237,6 +2262,9 @@ public:
 	// Variables.
 	/** The archive that actually writes the data to disk. */
 	FArchive* Saver;
+
+	FPackageIndex CurrentlySavingExport;
+	TArray<FPackageIndex> DepListForErrorChecking;
 
 	/** Index array - location of the resource for a UObject is stored in the ObjectIndices array using the UObject's Index */
 	TMap<UObject *,FPackageIndex> ObjectIndicesMap;

@@ -274,6 +274,14 @@ static FAutoConsoleVariableRef CVarPreloadPackageDependencies(
 	ECVF_Default
 	);
 
+static int32 GEventDrivenLoaderEnabled = 0;
+static FAutoConsoleVariableRef CVarEventDrivenLoaderEnabled(
+	TEXT("s.EventDrivenLoaderEnabled"),
+	GEventDrivenLoaderEnabled,
+	TEXT("Placeholder console variable, currently not used in runtime."),
+	ECVF_Default
+);
+
 uint32 FAsyncLoadingThread::AsyncLoadingThreadID = 0;
 
 static void IsTimeLimitExceededPrint(double InTickStartTime, double CurrentTime, float InTimeLimit, const TCHAR* InLastTypeOfWorkPerformed = nullptr, UObject* InLastObjectWorkWasPerformedOn = nullptr)
@@ -2712,6 +2720,18 @@ void ResumeAsyncLoadingInternal()
 {
 	check(IsInGameThread() && !IsInSlateThread());
 	FAsyncLoadingThread::Get().ResumeLoading();
+}
+
+bool IsEventDrivenLoaderEnabledInCookedBuilds()
+{
+#if WITH_EDITORONLY_DATA
+	check(GConfig); // Otherwise there's no way we have the correct value of GEventDrivenLoaderEnabled
+	return !!GEventDrivenLoaderEnabled;
+#elif USE_EVENT_DRIVEN_ASYNC_LOAD
+	return true;
+#else
+	return false;
+#endif
 }
 
 /*----------------------------------------------------------------------------
