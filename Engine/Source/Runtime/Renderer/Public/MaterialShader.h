@@ -166,7 +166,6 @@ private:
 	FDeferredPixelShaderParameters DeferredParameters;
 	FShaderResourceParameter SceneColorCopyTexture;
 	FShaderResourceParameter SceneColorCopyTextureSampler;
-	int64 unknownData;
 
 	//Use of the eye adaptation texture here is experimental and potentially dangerous as it can introduce a feedback loop. May be removed.
 	FShaderResourceParameter EyeAdaptation;
