@@ -376,7 +376,9 @@ bool FMaterialShader::Serialize(FArchive& Ar)
 	Ar << DeferredParameters;
 	Ar << SceneColorCopyTexture;
 	Ar << SceneColorCopyTextureSampler;
+	Ar << unknownData;
 	Ar << DebugUniformExpressionSet;
+	
 	if (Ar.IsLoading())
 	{
 		FName LayoutName;

@@ -47,7 +47,9 @@ void UMaterialGraph::RebuildGraph()
 		MaterialInputs.Add( FMaterialInputInfo( GetCustomDataPinName(1), MP_CustomData1 ) );
 		MaterialInputs.Add( FMaterialInputInfo( LOCTEXT("AmbientOcclusion", "Ambient Occlusion"), MP_AmbientOcclusion ) );
 		MaterialInputs.Add( FMaterialInputInfo( LOCTEXT("Refraction", "Refraction"), MP_Refraction) );
-
+		MaterialInputs.Add ( FMaterialInputInfo( LOCTEXT("Anisotropic", "Anisotropic"), MP_Anisotropic ) );
+		MaterialInputs.Add ( FMaterialInputInfo( LOCTEXT("LightChannel", "LightChannel"), MP_LightChannel ) );
+		
 		for (int32 UVIndex = 0; UVIndex < ARRAY_COUNT(Material->CustomizedUVs); UVIndex++)
 		{
 			//@todo - localize

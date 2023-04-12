@@ -418,6 +418,7 @@ enum EMaterialShadingModel
 	MSM_ClearCoat			UMETA(DisplayName="Clear Coat"),
 	MSM_SubsurfaceProfile	UMETA(DisplayName="Subsurface Profile"),
 	MSM_TwoSidedFoliage		UMETA(DisplayName="Two Sided"),
+	MSM_Anisotropic			UMETA(DisplayName="Two Sided"),
 	MSM_Hair				UMETA(DisplayName="Hair"),
 	MSM_Cloth				UMETA(DisplayName="Cloth"),
 	MSM_Eye					UMETA(DisplayName="Eye"),

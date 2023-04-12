@@ -407,6 +407,14 @@ public:
 			//This property MUST return 0 as a default or during the process of rendering textures out for lightmass to use, pixels will be off by 1.
 			return Compiler->Constant(0.0f);
 		}
+		else if( Property == MP_Anisotropic )
+		{
+			return MaterialInterface->CompileProperty(Compiler, MP_Anisotropic);
+		}
+		else if( Property == MP_LightChannel )
+		{
+			return MaterialInterface->CompileProperty(Compiler, MP_LightChannel);
+		}
 		else if (Property >= MP_CustomizedUVs0 && Property <= MP_CustomizedUVs7)
 		{
 			// Pass through customized UVs

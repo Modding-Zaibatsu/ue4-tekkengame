@@ -68,6 +68,7 @@ FString GetShadingModelString(EMaterialShadingModel ShadingModel)
 		case MSM_ClearCoat:			ShadingModelName = TEXT("MSM_ClearCoat"); break;
 		case MSM_SubsurfaceProfile:	ShadingModelName = TEXT("MSM_SubsurfaceProfile"); break;
 		case MSM_TwoSidedFoliage:	ShadingModelName = TEXT("MSM_TwoSidedFoliage"); break;
+		case MSM_Anisotropic:		ShadingModelName = TEXT("MSM_Anisotropic"); break;
 		case MSM_Cloth:				ShadingModelName = TEXT("MSM_Cloth"); break;
 		case MSM_Eye:				ShadingModelName = TEXT("MSM_Eye"); break;
 		default: ShadingModelName = TEXT("Unknown"); break;

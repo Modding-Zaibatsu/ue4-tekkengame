@@ -391,6 +391,9 @@ public:
 				Chunk[MP_Refraction] = AppendVector(UserRefraction, RefractionDepthBias);
 			}
 
+			Chunk[MP_Anisotropic] = Material->CompilePropertyAndSetMaterialProperty(MP_Anisotropic, this);
+			Chunk[MP_LightChannel] = Material->CompilePropertyAndSetMaterialProperty(MP_LightChannel, this);
+
 			if (bCompileForComputeShader)
 			{
 				Chunk[CompiledMP_EmissiveColorCS]		= Material->CompilePropertyAndSetMaterialProperty(MP_EmissiveColor,this, SF_Compute);
