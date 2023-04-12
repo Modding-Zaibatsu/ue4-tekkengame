@@ -2070,7 +2070,11 @@ void UStaticMesh::Serialize(FArchive& Ar)
 
 	if (Ar.UE4Ver() >= VER_UE4_STATIC_MESH_STORE_NAV_COLLISION)
 	{
-		Ar << NavCollision;
+		if(!bCooked)
+		{
+			Ar << NavCollision;
+		}
+
 #if WITH_EDITOR
 		if ((BodySetup != nullptr) && 
 			bHasNavigationData && 
@@ -2124,9 +2128,11 @@ void UStaticMesh::Serialize(FArchive& Ar)
 			BodySetup->Serialize( Ar );
 		}
 
-		if ( NavCollision )
-		{
-			NavCollision->Serialize( Ar );
+		if(!bCooked) {
+			if ( NavCollision )
+			{
+				NavCollision->Serialize( Ar );
+			}
 		}
 
 		//TODO: Count these members when calculating memory used
