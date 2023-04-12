@@ -376,7 +376,11 @@ bool FMaterialShader::Serialize(FArchive& Ar)
 	Ar << DeferredParameters;
 	Ar << SceneColorCopyTexture;
 	Ar << SceneColorCopyTextureSampler;
-	Ar << unknownData;
+	if (Ar.IsCooking())
+	{
+	    uint64 Temp = 0;
+		Ar << Temp;
+	}
 	Ar << DebugUniformExpressionSet;
 	
 	if (Ar.IsLoading())
