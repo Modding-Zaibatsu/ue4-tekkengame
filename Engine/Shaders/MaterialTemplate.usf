@@ -1475,6 +1475,20 @@ half3 GetMaterialWorldDisplacement(FMaterialTessellationParameters Parameters)
 %s;
 }
 
+//Tekken
+
+float GetMaterialAnisotropic(FMaterialVertexParameters Parameters)
+{
+%s;
+}
+
+float GetMaterialLightChannel(FMaterialVertexParameters Parameters)
+{
+%s;
+}
+
+//End Tekken
+
 half GetMaterialMaxDisplacement()
 {
 %s;

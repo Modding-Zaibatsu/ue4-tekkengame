@@ -328,6 +328,8 @@ EMaterialValueType GetMaterialPropertyType(EMaterialProperty Property)
 	case MP_Refraction: return MCT_Float2;
 	case MP_MaterialAttributes: return MCT_MaterialAttributes;
 	case MP_PixelDepthOffset: return MCT_Float;
+	case MP_Anisotropic: return MCT_Float;
+	case MP_LightChannel: return MCT_Float;
 	};
 
 	if (Property >= MP_CustomizedUVs0 && Property <= MP_CustomizedUVs7)
