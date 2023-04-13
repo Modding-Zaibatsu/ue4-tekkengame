@@ -2,6 +2,7 @@
 
 
 #pragma once
+#include "InterpTrack.h"
 #include "InterpTrackVectorBase.generated.h"
 
 UCLASS(abstract)
