@@ -978,14 +978,15 @@ bool UPrimitiveComponent::NeedsLoadForClient() const
 
 bool UPrimitiveComponent::NeedsLoadForServer() const
 {
-	if(!IsCollisionEnabled() && !AlwaysLoadOnServer)
+	return 0;
+	/*if(!IsCollisionEnabled() && !AlwaysLoadOnServer)
 	{
 		return 0;
 	}
 	else
 	{
 		return Super::NeedsLoadForServer();
-	}
+	}*/
 }
 
 void UPrimitiveComponent::SetOwnerNoSee(bool bNewOwnerNoSee)

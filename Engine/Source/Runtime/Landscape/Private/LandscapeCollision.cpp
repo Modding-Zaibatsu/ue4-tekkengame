@@ -133,7 +133,8 @@ ECollisionEnabled::Type ULandscapeHeightfieldCollisionComponent::GetCollisionEna
 {
 	ALandscapeProxy* Proxy = GetLandscapeProxy();
 
-	return Proxy->BodyInstance.GetCollisionEnabled();
+	return ECollisionEnabled::NoCollision;
+	//return Proxy->BodyInstance.GetCollisionEnabled();
 }
 
 ECollisionResponse ULandscapeHeightfieldCollisionComponent::GetCollisionResponseToChannel(ECollisionChannel Channel) const
